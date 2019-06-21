@@ -265,7 +265,7 @@ void alpha(char *src)
             break;
         }
 
-        printf("\nNOTICE: Unknown char: \'%c\'\n", *p++);
+        p++;
     }
 
     printf("\nFinished.\n");
