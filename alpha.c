@@ -6,304 +6,263 @@
 #include <ctype.h>
 #include <stdint.h>
 
-//Do interpretation
-//ALPHA have stack and accumulator
-void alpha(char *src)
+#define ALPHA_NEXT(P) P++; continue
+#define ALPHA_STACK 0x10000
+#define ALPHA_MASK  (ALPHA_STACK - 1)
+
+//Check source code for errors (unclosed quotes, braces and other
+int checks(char *src)
 {
     //Data
-    uint16_t sptr = 0;
-    uint32_t stack[0x10000] = { 0 };
-    uint16_t accumulator = 0;
-
     char *p = src;
+    int quote = 0;
+    int comment = 0;
+    int loop = 0;
+    int cond = 0;
+
     while(*p) {
-        //If there is comment then skip
-        if(*p == '{') {
-            while(*(++p) != '}') {
-                //If user entered wrong things then print error message and quit
-                if(!*p) {
-                    fprintf(stderr, "\nUNEXPECTED EOF: Cannot find end of comment\n");
-                    exit(1);
-                }
-            }
-            p++;
-            continue;
-        }
-
-        //Any string -> print it
-        if(*p == '\"') {
-            while(*(++p) != '\"') {
-                //If user entered wrong things then print error message and quit
-                if(!*p) {
-                    fprintf(stderr, "\nUNEXPECTED EOF: Cannot find end of string\n");
-                    exit(1);
-                }
-
-                putchar(*p);
-            }
-            p++;
-            continue;
-        }
-
-        //Directly put number to accumulator
-        if(isdigit(*p)) {
-            accumulator = strtol(p, &p, 0);
-            continue;
-        }
-
-        //Increment accumulator
-        if(*p == ']') {
-            accumulator++;
-            p++;
-            continue;
-        }
-
-        //Decrement accumulator
-        if(*p == '[') {
-            accumulator++;
-            p++;
-            continue;
-        }
-
-        //Push value from accumulator to stack
-        if(*p == ':') {
-            stack[sptr++] = accumulator;
-            p++;
-            continue;
-        }
-
-        //Pop value from stack to accumulator
-        if(*p == ';') {
-            accumulator = stack[--sptr];
-            stack[sptr] = 0;
-            p++;
-            continue;
-        }
-
-        //pop pop add push
-        if(*p == '+') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a + b);
-            p++;
-            continue;
-        }
-
-        //pop pop sub push
-        if(*p == '-') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a + b);
-            p++;
-            continue;
-        }
-
-        //pop pop mul push
-        if(*p == '*') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a * b);
-            p++;
-            continue;
-        }
-
-        //pop pop div push
-        if(*p == '/') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (b) ? (a / b) : 0;
-            p++;
-            continue;
-        }
-
-        //pop pop mod push
-        if(*p == '%') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (b) ? (a % b) : 0;
-            p++;
-            continue;
-        }
-
-        //pop pop and push
-        if(*p == '&') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a & b);
-            p++;
-            continue;
-        }
-
-        //pop pop or push
-        if(*p == '|') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a | b);
-            p++;
-            continue;
-        }
-
-        //pop pop xor push
-        if(*p == '^') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a ^ b);
-            p++;
-            continue;
-        }
-
-        //pop not push
-        if(*p == '~') {
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = ~a;
-            p++;
-            continue;
-        }
-
-        //pop pop shl push
-        if(*p == '<') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a << b);
-            p++;
-            continue;
-        }
-
-        //pop pop shr push
-        if(*p == '>') {
-            uint16_t b = stack[--sptr]; stack[sptr] = 0;
-            uint16_t a = stack[--sptr]; stack[sptr] = 0;
-            stack[sptr++] = (a >> b);
-            p++;
-            continue;
-        }
-
-        //print accumulator as char
-        if(*p == '!') {
-            putchar(accumulator);
-            p++;
-            continue;
-        }
-
-        //print accumulator as number
-        if(*p == '.') {
-            printf("%u", accumulator);
-            p++;
-            continue;
-        }
-
-        //read accumulator as char
-        if(*p == '\'') {
-            accumulator = getchar();
-            p++;
-            continue;
-        }
-
-        //read accumulator as number
-        if(*p == ',') {
-            scanf("%d", &accumulator);
-            p++;
-            continue;
-        }
-
-        //Conditional label (useless but here!)
-        if(*p == '@') {
-            p++;
-            continue;
-        }
-
-        //if accumulator is not zero then jump to previuos label
-        if(*p == '#') {
-            if(accumulator) {
-                while(*(--p) != '@') {
-                    //If user entered wrong things then print error message and quit
-                    if(!*p) {
-                        fprintf(stderr, "\nUNEXPECTED EOF: Cannot find previous label\n");
-                        exit(1);
-                    }
-                }
-            }
-            p++;
-            continue;
-        }
-
-        //if accumulator is zero then jump to next label
-        if(*p == '?') {
-            if(!accumulator) {
-                while(*(++p) != '@') {
-                    //If user entered wrong things then print error message and quit
-                    if(!*p) {
-                        fprintf(stderr, "\nUNEXPECTED EOF: Cannot find next label\n");
-                        exit(1);
-                    }
-                }
-            }
-            p++;
-            continue;
-        }
-
-        //set accumulator to 1 if pop == pop, else set to zero
-        if(*p == '=') {
-            uint16_t b = stack[--sptr];
-            uint16_t a = stack[--sptr];
-            accumulator = ((a == b) & 1);
-            sptr++;
-            sptr++;
-            p++;
-            continue;
-        }
-
-        //BOOLEAN inverse accumulator
-        if(*p == '_') {
-            accumulator = !accumulator;
-            p++;
-            continue;
-        }
-
-        //Stop interptereter right now
-        if(*p == '$') {
-            break;
+        switch(*p) {
+            case '{':   if((quote % 2) == 0) comment++; break;
+            case '}':   if((quote % 2) == 0) comment--; break;
+            case '[':   if((quote % 2) == 0) loop++;    break;
+            case ']':   if((quote % 2) == 0) loop--;    break;
+            case '(':   if((quote % 2) == 0) cond++;    break;
+            case ')':   if((quote % 2) == 0) cond--;    break;
+            case '\"':  quote++;                        break;
         }
 
         p++;
     }
 
-    printf("\nFinished.\n");
+    return (((quote % 2) == 0) && (comment == 0) && (loop == 0) && (cond == 0));
+}
+
+//Do interpretation
+//ALPHA have stack and accumulator
+void alpha(char *src)
+{
+    //Detect invalid syntax
+    if(!checks(src)) {
+        printf("Invalid syntax.\n");
+        return;
+    }
+
+    //Data
+    char *p = src;
+    long int ptr = 0, acc = 0;
+    long int mem[ALPHA_STACK] = { 0 };
+
+    while(*p) {
+        //If there is a comment
+        if(*p == '{') {
+            while(*(++p) != '}');
+            ALPHA_NEXT(p);
+        }
+
+        //If there is a string
+        if(*p == '\"') {
+            while(*(++p) != '\"') {
+                putchar(*p);
+            }
+            ALPHA_NEXT(p);
+        }
+
+        //If there is a number
+        if(isdigit(*p) || ((*p == '?') && (isdigit(*(p + 1))))) {
+            *p = (*p == '?') ? '-' : *p;
+            acc = strtol(p, &p, 0);
+            continue;
+        }
+
+        //Memory-Accumulator instructions
+        //Now ALPHA have not stack but can add value to accumulator from tape, etc...
+        //Accumulator->Cell
+        if(*p == ':') {
+            mem[ptr & ALPHA_MASK] = acc;
+            ALPHA_NEXT(p);
+        }
+
+        //Cell->Accumulator
+        if(*p == ';') {
+            acc = mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Next cell
+        if(*p == '>') {
+            ptr++;
+            ALPHA_NEXT(p);
+        }
+
+        //Previous cell
+        if(*p == '<') {
+            ptr--;
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator++
+        if(tolower(*p) == 'i') {
+            acc++;
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator--
+        if(tolower(*p) == 'd') {
+            acc--;
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator += cell
+        if(*p == '+') {
+            acc += mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator -= cell
+        if(*p == '-') {
+            acc -= mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator *= cell
+        if(*p == '*') {
+            acc *= mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator /= cell
+        if(*p == '/') {
+            acc = (mem[ptr & ALPHA_MASK]) ? (acc / mem[ptr & ALPHA_MASK]) : 0;
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator %= cell
+        if(*p == '%') {
+            acc = (mem[ptr & ALPHA_MASK]) ? (acc % mem[ptr & ALPHA_MASK]) : 0;
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator &= cell
+        if(*p == '&') {
+            acc &= mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator |= cell
+        if(*p == '|') {
+            acc |= mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator ^= cell
+        if(*p == '^') {
+            acc ^= mem[ptr & ALPHA_MASK];
+            ALPHA_NEXT(p);
+        }
+
+        //Accumulator = (Accumulator == cell)
+        if(*p == '=') {
+            acc = (acc == mem[ptr & ALPHA_MASK]) & 1;
+            ALPHA_NEXT(p);
+        }
+
+        //!Accumulator
+        if(*p == '_') {
+            acc = !acc;
+            ALPHA_NEXT(p);
+        }
+
+        //Print accumulator value as char
+        if(*p == '!') {
+            putchar(acc);
+            ALPHA_NEXT(p);
+        }
+
+        //Print accumulator value as number
+        if(*p == '.') {
+            printf("%ld", acc);
+            ALPHA_NEXT(p);
+        }
+
+        //Read accumulator value as char
+        if(*p == '\'') {
+            acc = getchar();
+            ALPHA_NEXT(p);
+        }
+
+        //Read accumulator value as number
+        if(*p == ',') {
+            scanf("%ld", &acc);
+            ALPHA_NEXT(p);
+        }
+
+        //Loop start - do nothing.
+        if(*p == '[') {
+            ALPHA_NEXT(p);
+        }
+
+        //Loop end
+        if(*p == ']') {
+            if(acc) {
+                int l = 1;
+                while(l > 0) {
+                    p--;
+                    switch(*p) {
+                        case '[':   l--;    break;
+                        case ']':   l++;    break;
+                    }
+                }
+            }
+            ALPHA_NEXT(p);
+        }
+
+        //Conditional start
+        if(*p == '(') {
+            if(!acc) {
+                int l = 1;
+                while(l > 0) {
+                    p++;
+                    switch(*p) {
+                        case ')':   l--;    break;
+                        case '(':   l++;    break;
+                    }
+                }
+            }
+
+            ALPHA_NEXT(p);
+        }
+
+        //Conditional end
+        if(*p == ')') {
+            ALPHA_NEXT(p);
+        }
+
+        //Stop interptering
+        if(*p == '$') {
+            break;
+        }
+
+        //All whitespace are ignored
+        if(isspace(*p)) {
+            ALPHA_NEXT(p);
+        }
+
+        printf("\nUnknown char: '%c'\n", *p);
+        return;
+    }
+
+    putchar('\n');
     return;
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
-    //If no args then crash
-    if(argc < 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        return 1;
-    }
+    printf("The ALPHA Esoteric Programming Language v0.2\n");
+    printf("============================================\n\n");
 
-    //Open file to read
-    FILE *f = fopen(argv[1], "rb");
-    if(!f) {
-        perror(argv[1]);
-        return -1;
-    }
-
-    //Get length of file
-    fseek(f, 0, SEEK_END);
-    int len = ftell(f);
-    rewind(f);
-
-    //Read data to buffer then close file
-    char *buffer = malloc(len);
-    fread(buffer, 1, len, f);
-    fclose(f);
-
-    //Replace all terminators to spaces
-    for(int i = 0; i < len; i++) {
-        if(!buffer[i]) {
-            buffer[i] = ' ';
-        }
-    }
-
+    //Do simple parsing
+    char buffer[5120] = { 0 };
+    gets(buffer);
     alpha(buffer);
 
     return 0;
