@@ -68,8 +68,8 @@ void alpha(char *src)
         }
 
         //If there is a number
-        if(isdigit(*p) || ((*p == '?') && (isdigit(*(p + 1))))) {
-            *p = (*p == '?') ? '-' : *p;
+        if(isdigit(*p) || ((*p == '~') && (isdigit(*(p + 1))))) {
+            *p = (*p == '~') ? '-' : *p;
             acc = strtol(p, &p, 0);
             continue;
         }
