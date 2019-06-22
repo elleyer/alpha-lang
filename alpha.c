@@ -117,43 +117,43 @@ void alpha(char *src)
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell - accumulator
         if(*p == '-') {
             acc = mem[ptr & ALPHA_MASK] - acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell * accumulator
         if(*p == '*') {
             acc = mem[ptr & ALPHA_MASK] * acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell / accumulator
         if(*p == '/') {
             acc = (acc) ? (mem[ptr & ALPHA_MASK] / acc) : 0;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell % accumulator
         if(*p == '%') {
             acc = (acc) ? (mem[ptr & ALPHA_MASK] % acc) : 0;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell & accumulator
         if(*p == '&') {
             acc = mem[ptr & ALPHA_MASK] & acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell | accumulator
         if(*p == '|') {
             acc = mem[ptr & ALPHA_MASK] | acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator = cell + accumulator
+        //Accumulator = cell ^ accumulator
         if(*p == '^') {
             acc = mem[ptr & ALPHA_MASK] ^ acc;
             ALPHA_NEXT(p);
