@@ -68,8 +68,7 @@ void alpha(char *src)
         }
 
         //If there is a number
-        if(isdigit(*p) || ((*p == '~') && (isdigit(*(p + 1))))) {
-            *p = (*p == '~') ? '-' : *p;
+        if(isdigit(*p) || ((*p == '-') && (isdigit(*(p + 1))))) {
             acc = strtol(p, &p, 0);
             continue;
         }
@@ -112,51 +111,51 @@ void alpha(char *src)
             ALPHA_NEXT(p);
         }
 
-        //Accumulator += cell
+        //Accumulator = cell + accumulator
         if(*p == '+') {
-            acc += mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] + acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator -= cell
+        //Accumulator = cell + accumulator
         if(*p == '-') {
-            acc -= mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] - acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator *= cell
+        //Accumulator = cell + accumulator
         if(*p == '*') {
-            acc *= mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] * acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator /= cell
+        //Accumulator = cell + accumulator
         if(*p == '/') {
-            acc = (mem[ptr & ALPHA_MASK]) ? (acc / mem[ptr & ALPHA_MASK]) : 0;
+            acc = (acc) ? (mem[ptr & ALPHA_MASK] / acc) : 0;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator %= cell
+        //Accumulator = cell + accumulator
         if(*p == '%') {
-            acc = (mem[ptr & ALPHA_MASK]) ? (acc % mem[ptr & ALPHA_MASK]) : 0;
+            acc = (acc) ? (mem[ptr & ALPHA_MASK] % acc) : 0;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator &= cell
+        //Accumulator = cell + accumulator
         if(*p == '&') {
-            acc &= mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] & acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator |= cell
+        //Accumulator = cell + accumulator
         if(*p == '|') {
-            acc |= mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] | acc;
             ALPHA_NEXT(p);
         }
 
-        //Accumulator ^= cell
+        //Accumulator = cell + accumulator
         if(*p == '^') {
-            acc ^= mem[ptr & ALPHA_MASK];
+            acc = mem[ptr & ALPHA_MASK] ^ acc;
             ALPHA_NEXT(p);
         }
 
@@ -205,7 +204,7 @@ void alpha(char *src)
         if(*p == ']') {
             if(acc) {
                 int l = 1;
-                while(l > 0) {
+                while((l > 0) && (*(p - 1))) {
                     p--;
                     switch(*p) {
                         case '[':   l--;    break;
@@ -221,7 +220,7 @@ void alpha(char *src)
         if(*p == '(') {
             if(!acc) {
                 int l = 1;
-                while(l > 0) {
+                while((l > 0) && (*(p + 1))) {
                     p++;
                     switch(*p) {
                         case ')':   l--;    break;
