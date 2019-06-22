@@ -213,6 +213,7 @@ void alpha(char *src)
                     }
                 }
             }
+
             ALPHA_NEXT(p);
         }
 
@@ -255,15 +256,48 @@ void alpha(char *src)
     return;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    //If not enough args
+    if(argc < 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
+    //Print message
     printf("The ALPHA Esoteric Programming Language v0.2\n");
     printf("============================================\n\n");
 
     //Do simple parsing
-    char buffer[5120] = { 0 };
-    gets(buffer);
+    FILE *f;
+    int length = 0;
+    char *buffer = NULL;
+
+    //Open file and check for errors
+    f = fopen(argv[1], "rb");
+    if(!f) {
+        perror(argv[1]);
+        return 1;
+    }
+
+    //Get length of file
+    fseek(f, 0, SEEK_END);
+    length = ftell(f);
+    rewind(f);
+
+    //Create new buffer
+    buffer = malloc(length + 1);
+    memset(buffer, 0, length);
+
+    //Read file to buffer
+    fread(buffer, 1, length, f);
+    buffer[length] = 0;
+    fclose(f);
+
+    //Run program
+    printf(">>> %s\n", buffer);
     alpha(buffer);
+    free(buffer);
 
     return 0;
 }
