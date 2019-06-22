@@ -1,0 +1,3 @@
+{ Just simple demonstration of IF-ELSE construction }
+{ Actually i wanted to implement just if and _() is side effect of language syntax }
+"Enter the number: ",:1337=("You entered 1337, arent ya?")_("Your number is: ";.:)$
