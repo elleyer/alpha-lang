@@ -1,0 +1,8 @@
+{ Generic switch-case analog in ALPHA }
+"Enter number:"10!"> ",:
+1337=("Leet!"10!$)_(
+1234=("Too easy."10!$)_(
+-1  =("Was it EOF?"10!$)_(
+42  =("42."10!$)
+    _("Your number is: ";.10!$)
+)))
