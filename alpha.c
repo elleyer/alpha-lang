@@ -294,7 +294,6 @@ int main(int argc, char **argv)
     fclose(f);
 
     //Run program
-    printf(">>> %s\n", buffer);
     alpha(buffer);
     free(buffer);
 
