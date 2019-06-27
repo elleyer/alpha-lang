@@ -71,6 +71,10 @@ const alpha = async function(argv) {
     let acc = 0;
     let pos = 0;
     
+    for(let i = 0; i < 0x10000; i++) {
+        memory[i] = 0;
+    }
+    
     while((pos < src.length) && (ALPHA_RUNNING)) {
         console.log(pos);
         
