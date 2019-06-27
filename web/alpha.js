@@ -346,7 +346,7 @@ $(document).keydown(function(evt) {
     conio_write("The ALPHA Esoteric Programming Language v0.2W\n");
     conio_write("============================================\n\n");
     conio_write("Write '/run' to start executing the code.\n");
-    conio_write("Press enter for submit your input\n");
+    conio_write("Press enter to submit your input\n");
     
     await (async function loop() {
         let thing = await conio_read();
