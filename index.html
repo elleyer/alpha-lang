@@ -4,67 +4,11 @@
     <head>
         <meta charset="UTF-8">
         <title>Alpha</title>
-        <style>
-            body {
-                background-color: #373B41;
-                color: #C5C8C6;
-                display: flex;
-            }
-
-            header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                
-                background-color: #1D1F21;
-                font-family: Monospace, bold;
-                font-size: 10pt;
-            }
-
-            header p {
-                margin-left: 3%;
-                vertical-align: middle;
-            }
-
-            textarea {
-                margin-top: 46px;
-                resize: none;
-                width: 512px;
-                height: 256px;
-                
-                border-style: solid;
-                border-color: #282A2E;
-                background-color: #1D1F21;
-                color: #C5C8C6;
-            }
-
-            #a_src {
-                width: 720px;
-            }
-
-            console textarea {
-                height: 228px;
-                background-color: #121214;
-                margin-left: 8px;
-            }
-
-            console input {
-                width: 512px;
-                margin-left: 9px;
-                margin-top: 1px;
-                position: relative;
-                
-                border-style: solid;
-                border-color: #282A2E;
-                background-color: #1D1F21;
-                color: #C5C8C6;
-            }
-        </style>
+        <link rel="stylesheet" href="web/style.css"/>
         
         <!-- Scripts: jQuery and ALPHAWEB -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-        <script async src="./alpha.js"></script>
+        <script async src="web/alpha.js"></script>
     </head>
     
     <!-- Body settings -->
@@ -72,12 +16,8 @@
         <header>
             <p>Alpha Esoteric Programming Language (Testing)</p>
         </header>
-        <textarea id="a_src">
-{ Write your code here }
-{ Prints ASCII table (8-bit) into STDOUT }
-{ works like for(int i = 0; i < 256; i++) putchar(i); }
-0:[;!i:255=_]
-        </textarea>
+        <textarea id="a_src">{ Write your code here }
+10:[>7+:>10+:>3+:>1+:<<<<;d:0=_]>2+!:>1+!:7+!!:3+!:>2+!:<<15+!:>;!:3+!:6-!:8-!:>1+!:>;!:$</textarea>
         
         <!-- Console -->
         <console>

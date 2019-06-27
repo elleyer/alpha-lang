@@ -1,0 +1,55 @@
+body {
+  background-color: #373B41;
+  color: #C5C8C6;
+  display: flex;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    
+    background-color: #1D1F21;
+    font-family: Monospace, bold;
+    font-size: 10pt;
+}
+
+header p {
+    margin-left: 3%;
+    vertical-align: middle;
+}
+
+textarea {
+    margin-top: 46px;
+    resize: none;
+    width: 512px;
+    height: 256px;
+    
+    border-style: solid;
+    border-color: #282A2E;
+    background-color: #1D1F21;
+    color: #C5C8C6;
+}
+
+#a_src {
+    width: 720px;
+}
+
+console textarea {
+    height: 228px;
+    background-color: #121214;
+    margin-left: 8px;
+}
+
+console input {
+    width: 512px;
+    margin-left: 9px;
+    margin-top: 1px;
+    position: relative;
+    
+    border-style: solid;
+    border-color: #282A2E;
+    background-color: #1D1F21;
+    color: #C5C8C6;
+}
