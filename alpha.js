@@ -317,9 +317,11 @@ const alpha_cmdparse = async function(value) {
         let command = value.shift();
         
         switch(command.toLowerCase()) {
-            case "clear":   $("#a_console").val("");                            break;
-            case "run":     alpha(value);                                 break;
-            default:        conio_write("Invalid command\n");                   break;
+            case "clear":   $("#a_console").val("");                                break;
+            case "run":     alpha(value);                                           break;
+            case "github":  conio_write("https://github.com/undbsd/alpha-lang\n");  break;
+            case "restart": window.location.reload(false);                          break;
+            default:        conio_write("Invalid command\n");                       break;
         }
     }
 };
