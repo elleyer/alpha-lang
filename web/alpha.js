@@ -57,6 +57,14 @@ const alpha = async function(argv) {
         return (char == '0' || char == '1' || char == '2' || char == '3' || char == '4' ||
                 char == '5' || char == '6' || char == '7' || char == '8' || char == '9');
     }
+
+    console.clear();
+
+    //Flags and args from '/run'
+    let debug = argv.includes("debug");
+    let noout = argv.includes("noout");
+    let noin = argv.includes("noin");
+    let clear = argv.includes("clear");
     
     let src = $("#a_src").val();
     if(!_check(src)) {
@@ -65,6 +73,12 @@ const alpha = async function(argv) {
     }
     
     ALPHA_RUNNING = true;
+    if(clear) {
+        $("#a_console").val("");
+        if(debug) {
+            console.log("Cleared console");
+        }
+    }
     
     let memory = [];
     let memptr = 0;
@@ -76,7 +90,9 @@ const alpha = async function(argv) {
     }
     
     while((pos < src.length) && (ALPHA_RUNNING)) {
-        console.log(pos);
+        if(debug) {
+            console.log("Reading '" + src[pos] + "' at " + pos);
+        }
         
         //If there is comment
         if(src[pos] == '{') {
@@ -218,23 +234,32 @@ const alpha = async function(argv) {
         
         //print accumulator value as char
         if(src[pos] == '!') {
-            conio_write(String.fromCharCode(acc));
+            if(!noout) {
+                conio_write(String.fromCharCode(acc));
+            }
             pos++;
             continue;
         }
         
         //Print accumulator value as number
         if(src[pos] == '.') {
-            conio_write(acc);
+            if(!noout) {
+                conio_write(acc);
+            }
             pos++;
             continue;
         }
         
         //Read accumulator value as char (single from whole string)
         if(src[pos] == '\'') {
-            await conio_read().then(function(value) {
-                acc = value.toString().charCodeAt(0);
-            });
+            if(!noin) {
+                await conio_read().then(function(value) {
+                    acc = value.toString().charCodeAt(0);
+                });
+            }
+            else {
+                acc = 0;
+            }
             conio_write(String.fromCharCode(acc), '\n');
             pos++;
             continue;
@@ -242,8 +267,13 @@ const alpha = async function(argv) {
         
         //Read accumulator value as number
         if(src[pos] == ',') {
-            let num = Number(await conio_read());
-            acc = (!isNaN(num)) ? num : 0;
+            if(!noin) {
+                let num = Number(await conio_read());
+                acc = (!isNaN(num)) ? num : 0;
+            }
+            else {
+                acc = 0;
+            }
             conio_write(acc, '\n');
             pos++;
             continue;
@@ -317,15 +347,16 @@ const alpha = async function(argv) {
 const alpha_cmdparse = async function(value) {
     if(value.startsWith('/')) {
         value = value.substring(1);
-        value = value.match(/\w+|"[^"]+"/g);
+        value = value.split(/\s/);
         let command = value.shift();
         
         switch(command.toLowerCase()) {
-            case "clear":   $("#a_console").val("");                                break;
-            case "run":     alpha(value);                                           break;
-            case "github":  conio_write("https://github.com/undbsd/alpha-lang\n");  break;
-            case "restart": window.location.reload(false);                          break;
-            default:        conio_write("Invalid command\n");                       break;
+            case "clear":   $("#a_console").val("");                                        break;
+            case "run":     alpha(value);                                                   break;
+            case "github":  window.open("https://github.com/undbsd/alpha-lang", "_blank");  break;
+            case "restart": window.location.reload(false);                                  break;
+            case "echo":    conio_write(value.join(' '), '\n');                             break;
+            default:        conio_write("Invalid command\n");                               break;
         }
     }
 };
