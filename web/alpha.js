@@ -62,8 +62,6 @@ const alpha = async function(argv) {
 
     //Flags and args from '/run'
     let debug = argv.includes("debug");
-    let noout = argv.includes("noout");
-    let noin = argv.includes("noin");
     let clear = argv.includes("clear");
     
     let src = $("#a_src").val();
@@ -234,32 +232,23 @@ const alpha = async function(argv) {
         
         //print accumulator value as char
         if(src[pos] == '!') {
-            if(!noout) {
-                conio_write(String.fromCharCode(acc));
-            }
+            conio_write(String.fromCharCode(acc));
             pos++;
             continue;
         }
         
         //Print accumulator value as number
         if(src[pos] == '.') {
-            if(!noout) {
-                conio_write(acc);
-            }
+            conio_write(acc);
             pos++;
             continue;
         }
         
         //Read accumulator value as char (single from whole string)
         if(src[pos] == '\'') {
-            if(!noin) {
-                await conio_read().then(function(value) {
-                    acc = value.toString().charCodeAt(0);
-                });
-            }
-            else {
-                acc = 0;
-            }
+            await conio_read().then(function(value) {
+                acc = value.toString().charCodeAt(0);
+            });
             conio_write(String.fromCharCode(acc), '\n');
             pos++;
             continue;
@@ -267,13 +256,8 @@ const alpha = async function(argv) {
         
         //Read accumulator value as number
         if(src[pos] == ',') {
-            if(!noin) {
-                let num = Number(await conio_read());
-                acc = (!isNaN(num)) ? num : 0;
-            }
-            else {
-                acc = 0;
-            }
+            let num = Number(await conio_read());
+            acc = (!isNaN(num)) ? num : 0;
             conio_write(acc, '\n');
             pos++;
             continue;
